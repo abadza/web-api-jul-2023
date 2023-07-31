@@ -1,13 +1,58 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EmployeesHrApi.Data;
+using EmployeesHrApi.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+
 
 namespace EmployeesHrApi.Controllers;
 
+
+
 public class EmployeesController : ControllerBase
 {
-    //GET /employees
-    [HttpGet("/employees")]
-    public async Task<ActionResult>GetActionResultAsync()
+
+
+
+    private readonly EmployeeDataContext _context;
+
+
+
+    public EmployeesController(EmployeeDataContext context)
     {
-        return Ok("Tacos");
+        _context = context;
     }
+
+
+
+    // GET /employees
+    [HttpGet("/employees")]
+    public async Task<ActionResult> GetEmployeesAsync()
+    {
+        var employees = await _context.Employees
+            .Select(emp => new EmployeesSummaryResponseModel
+            {
+                Id = emp.Id.ToString(),
+                FirstName = emp.FirstName,
+                LastName = emp.LastName,
+                Department = emp.Department,
+                Email = emp.Email,
+            })
+            .ToListAsync();
+        // TODO: Get Back to This
+
+
+
+
+        var response = new EmployeesResponseModel
+        {
+            Employees = employees
+        };
+        return Ok(response);
+    }
+
+
+
+
+
 }
